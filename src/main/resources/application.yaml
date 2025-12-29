@@ -1,7 +1,10 @@
 spring:
   profiles:
     active: docker  # default profile
-
+  cloud:
+    zookeeper:
+      config:
+        enabled: false
 ---
 spring:
   config:
