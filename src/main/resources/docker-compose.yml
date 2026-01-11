@@ -1,35 +1,61 @@
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
+    image: confluentinc/cp-zookeeper:7.6.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
 
-  Kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"     # for Docker-internal apps
-      - "29092:29092"   # for host machine access
+      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  app:
-    build: .
-    container_name: springboot-app
-    depends_on:
-      - Kafka
-    environment:
-      SPRING_PROFILES_ACTIVE: docker   # activate Docker profile in application.yaml
+  mysql1:
+    image: mysql:latest
+    container_name: metrics_db
     ports:
-      - "8080:8080"
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=db1
+    volumes:
+      - metrics_db_data:/var/lib/metrics_db
+
+  mysql2:
+    image: mysql:latest
+    container_name: actions_db
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=db2
+    volumes:
+      - actions_db_data:/var/lib/actions_db
+
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: logging_mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    volumes:
+      - logging_mongo_data:/data/logging_mongo
+
+volumes:
+  metrics_db_data:
+  actions_db_data:
+  logging_mongo_data:
