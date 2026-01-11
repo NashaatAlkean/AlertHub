@@ -17,4 +17,9 @@ class KafkaController {
         System.out.println("Message sent to topic");
         return "Message sent to topic" + message;
     }
+    @PostMapping("/sendSMS")
+    public String sendSmSMessage(@RequestParam String message) {
+        kafkaProducer.sendMessage("SmsTopic",message);
+        return "Message sent to SmsTopic" + message;
+    }
 }

@@ -6,15 +6,13 @@ import java.lang.reflect.Array;
 
 @Service
 class ThreshholdCheckerService {
-    public boolean checkThreshhold(String message) {
+    public String[] checkThreshhold(String[] Actions) {
 
-
-        String[] Actions =   {"1","2","3"};
             for (int i=0; i<Actions.length; i++) {
-                if (!Actions[i].equals(message)) {
-                    return false;
-                }
+//                if (Actions[i].threshold < 1) {
+//                    Actions[i].pop();
+//                }
             }
-        return true;
+        return Actions;
     }
 }
